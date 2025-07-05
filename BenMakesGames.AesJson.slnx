@@ -1,0 +1,8 @@
+﻿<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".gitignore" />
+    <File Path="README.md" />
+    <File Path="LICENSE.md" />
+  </Folder>
+  <Project Path="BenMakesGames.AesJson\BenMakesGames.AesJson.csproj" Type="Classic C#" />
+</Solution>
