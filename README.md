@@ -6,7 +6,7 @@ To make this library easy to use, it includes methods that use Argon2i encryptio
 
 I personally use this library for the save/load system in my desktop games, to _discourage_ players from cheating. (Remember: for an application that runs fully on the player's machine, the encryption password and salt must be baked into your application, and so dedicated players CAN find & extract them. Encryption in that scenario is a deterrent, only.)
 
-> [🧚 *Hey, listen!* You can support my development of open-source software on Patreon](https://www.patreon.com/BenMakesGames)
+> [🧚 **Hey, listen!** You can support my development of open-source software on Patreon](https://www.patreon.com/BenMakesGames)
 
 # Example Usage (using Argon2i)
 
