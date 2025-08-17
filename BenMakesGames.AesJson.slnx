@@ -4,5 +4,6 @@
     <File Path="README.md" />
     <File Path="LICENSE.md" />
   </Folder>
+  <Project Path="BenMakesGames.AesJson.Test\BenMakesGames.AesJson.Test.csproj" Type="Classic C#" />
   <Project Path="BenMakesGames.AesJson\BenMakesGames.AesJson.csproj" Type="Classic C#" />
 </Solution>

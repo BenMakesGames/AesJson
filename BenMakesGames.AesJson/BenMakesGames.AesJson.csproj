@@ -5,7 +5,7 @@
         <Company>Ben Hendel-Doying</Company>
         <Description>Helpers for JSON-serializing + gziping + AES-encrypting data to/from disk.</Description>
         <Copyright>2025 Ben Hendel-Doying</Copyright>
-        <Version>1.0.0</Version>
+        <Version>1.1.0</Version>
 
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageTags>json aes save load</PackageTags>

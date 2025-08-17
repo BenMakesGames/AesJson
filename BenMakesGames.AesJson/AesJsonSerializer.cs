@@ -22,12 +22,13 @@ public static class AesJsonSerializer
     /// <param name="password">Should be 16-32 bytes of hard-to-guess characters</param>
     /// <param name="salt">Should be 16 bytes</param>
     /// <param name="profile">Defaults to DesktopGame. (Controls settings for Argon2i hashing.)</param>
+    /// <param name="jsonSerializerOptions"><see cref="JsonSerializerOptions">JsonSerializerOptions</see> to use; <c>JsonSerializerOptions.Default</c> is used if null is given</param>
     /// <typeparam name="T"></typeparam>
-    public static void WriteFile<T>(T dto, string fileName, string password, string salt, Profile profile = Profile.DesktopGame)
+    public static void WriteFile<T>(T dto, string fileName, string password, string salt, Profile profile = Profile.DesktopGame, JsonSerializerOptions? jsonSerializerOptions = null)
     {
         using var aes = CreateArgon2iAes(password, salt, profile);
 
-        WriteFile(dto, fileName, aes);
+        WriteFile(dto, fileName, aes, jsonSerializerOptions);
     }
 
     /// <summary>
@@ -40,13 +41,14 @@ public static class AesJsonSerializer
     /// <param name="password">Should be 16-32 bytes of hard-to-guess characters</param>
     /// <param name="salt">Should be 16 bytes</param>
     /// <param name="profile">Defaults to DesktopGame. (Controls degree of parallelism for Argon2i hashing.)</param>
+    /// <param name="jsonSerializerOptions"><see cref="JsonSerializerOptions">JsonSerializerOptions</see> to use; <c>JsonSerializerOptions.Default</c> is used if null is given</param>
     /// <typeparam name="T"></typeparam>
     /// <returns>Object of type T, or null.</returns>
-    public static T? ReadFile<T>(string fileName, string password, string salt, Profile profile = Profile.DesktopGame)
+    public static T? ReadFile<T>(string fileName, string password, string salt, Profile profile = Profile.DesktopGame, JsonSerializerOptions? jsonSerializerOptions = null)
     {
         using var aes = CreateArgon2iAes(password, salt, profile);
 
-        return ReadFile<T>(fileName, aes);
+        return ReadFile<T>(fileName, aes, jsonSerializerOptions);
     }
 
     /// <summary>
@@ -54,9 +56,10 @@ public static class AesJsonSerializer
     /// </summary>
     /// <param name="dto">Object to serialize</param>
     /// <param name="fileName">File to (over)write</param>
-    /// <param name="aes"><c>Aes</c> instance to use for encryption</param>
+    /// <param name="aes"><see cref="Aes">Aes</see> instance to use for decryption</param>
+    /// <param name="jsonSerializerOptions"><see cref="JsonSerializerOptions">JsonSerializerOptions</see> to use; <c>JsonSerializerOptions.Default</c> is used if null is given</param>
     /// <typeparam name="T"></typeparam>
-    public static void WriteFile<T>(T dto, string fileName, Aes aes)
+    public static void WriteFile<T>(T dto, string fileName, Aes aes, JsonSerializerOptions? jsonSerializerOptions = null)
     {
         var file = File.CreateText(fileName);
 
@@ -65,7 +68,7 @@ public static class AesJsonSerializer
         using (var gzipStream = new StreamWriter(gzip))
         using (var json = new Utf8JsonWriter(gzipStream.BaseStream))
         {
-            JsonSerializer.Serialize(json, dto);
+            JsonSerializer.Serialize(json, dto, jsonSerializerOptions);
             gzipStream.Flush();
         }
     }
@@ -77,17 +80,18 @@ public static class AesJsonSerializer
     /// The <c>password</c>, <c>salt</c>, and <c>cores</c> must match the values used to write the file, or an exception will be thrown.
     /// </remarks>
     /// <param name="fileName">File to read</param>
-    /// <param name="aes"><c>Aes</c> instance to use for decryption</param>
+    /// <param name="aes"><see cref="Aes">Aes</see> instance to use for decryption</param>
+    /// <param name="jsonSerializerOptions"><see cref="JsonSerializerOptions">JsonSerializerOptions</see> to use; <c>JsonSerializerOptions.Default</c> is used if null is given</param>
     /// <typeparam name="T"></typeparam>
     /// <returns>Object of type T, or null.</returns>
-    public static T? ReadFile<T>(string fileName, Aes aes)
+    public static T? ReadFile<T>(string fileName, Aes aes, JsonSerializerOptions? jsonSerializerOptions = null)
     {
         using (var file = File.OpenText(fileName))
         using (var cryptoStream = new CryptoStream(file.BaseStream, aes.CreateDecryptor(), CryptoStreamMode.Read))
         using (var gzip = new GZipStream(cryptoStream, CompressionMode.Decompress))
         using (var gzipStream = new StreamReader(gzip))
         {
-            return JsonSerializer.Deserialize<T>(gzipStream.ReadToEnd());
+            return JsonSerializer.Deserialize<T>(gzipStream.ReadToEnd(), jsonSerializerOptions);
         }
     }
 
@@ -102,12 +106,13 @@ public static class AesJsonSerializer
     /// <param name="password">Should be 16-32 bytes of hard-to-guess characters</param>
     /// <param name="salt">Should be 16 bytes</param>
     /// <param name="profile">Defaults to DesktopGame. (Controls settings for Argon2i hashing.)</param>
+    /// <param name="jsonSerializerOptions"><see cref="JsonSerializerOptions">JsonSerializerOptions</see> to use; <c>JsonSerializerOptions.Default</c> is used if null is given</param>
     /// <typeparam name="T"></typeparam>
-    public static async Task WriteFileAsync<T>(T dto, string fileName, string password, string salt, Profile profile = Profile.DesktopGame)
+    public static async Task WriteFileAsync<T>(T dto, string fileName, string password, string salt, Profile profile = Profile.DesktopGame, JsonSerializerOptions? jsonSerializerOptions = null)
     {
         var aes = CreateArgon2iAes(password, salt, profile);
 
-        await WriteFileAsync(dto, fileName, aes);
+        await WriteFileAsync(dto, fileName, aes, jsonSerializerOptions);
     }
 
     /// <summary>
@@ -120,13 +125,14 @@ public static class AesJsonSerializer
     /// <param name="password">Should be 16-32 bytes of hard-to-guess characters</param>
     /// <param name="salt">Should be 16 bytes</param>
     /// <param name="profile">Defaults to DesktopGame. (Controls degree of parallelism for Argon2i hashing.)</param>
+    /// <param name="jsonSerializerOptions"><see cref="JsonSerializerOptions">JsonSerializerOptions</see> to use; <c>JsonSerializerOptions.Default</c> is used if null is given</param>
     /// <typeparam name="T"></typeparam>
     /// <returns>Object of type T, or null.</returns>
-    public static async Task<T?> ReadFileAsync<T>(string fileName, string password, string salt, Profile profile = Profile.DesktopGame)
+    public static async Task<T?> ReadFileAsync<T>(string fileName, string password, string salt, Profile profile = Profile.DesktopGame, JsonSerializerOptions? jsonSerializerOptions = null)
     {
         var aes = CreateArgon2iAes(password, salt, profile);
 
-        return await ReadFileAsync<T>(fileName, aes);
+        return await ReadFileAsync<T>(fileName, aes, jsonSerializerOptions);
     }
 
     /// <summary>
@@ -134,9 +140,10 @@ public static class AesJsonSerializer
     /// </summary>
     /// <param name="dto">Object to serialize</param>
     /// <param name="fileName">File to (over)write</param>
-    /// <param name="aes"><c>Aes</c> instance to use for encryption</param>
+    /// <param name="aes"><see cref="Aes">Aes</see> instance to use for decryption</param>
+    /// <param name="jsonSerializerOptions"><see cref="JsonSerializerOptions">JsonSerializerOptions</see> to use; <c>JsonSerializerOptions.Default</c> is used if null is given</param>
     /// <typeparam name="T"></typeparam>
-    public static async Task WriteFileAsync<T>(T dto, string fileName, Aes aes)
+    public static async Task WriteFileAsync<T>(T dto, string fileName, Aes aes, JsonSerializerOptions? jsonSerializerOptions = null)
     {
         var file = File.CreateText(fileName);
 
@@ -144,7 +151,7 @@ public static class AesJsonSerializer
         await using (var gzip = new GZipStream(cryptoStream, CompressionLevel.Optimal))
         await using (var gzipStream = new StreamWriter(gzip))
         {
-            await JsonSerializer.SerializeAsync(gzipStream.BaseStream, dto);
+            await JsonSerializer.SerializeAsync(gzipStream.BaseStream, dto, jsonSerializerOptions);
             await gzipStream.FlushAsync();
         }
     }
@@ -156,17 +163,18 @@ public static class AesJsonSerializer
     /// The <c>password</c>, <c>salt</c>, and <c>cores</c> must match the values used to write the file, or an exception will be thrown.
     /// </remarks>
     /// <param name="fileName">File to read</param>
-    /// <param name="aes"><c>Aes</c> instance to use for decryption</param>
+    /// <param name="aes"><see cref="Aes">Aes</see> instance to use for decryption</param>
+    /// <param name="jsonSerializerOptions"><see cref="JsonSerializerOptions">JsonSerializerOptions</see> to use; <c>JsonSerializerOptions.Default</c> is used if null is given</param>
     /// <typeparam name="T"></typeparam>
     /// <returns>Object of type T, or null.</returns>
-    public static async Task<T?> ReadFileAsync<T>(string fileName, Aes aes)
+    public static async Task<T?> ReadFileAsync<T>(string fileName, Aes aes, JsonSerializerOptions? jsonSerializerOptions = null)
     {
         using (var file = File.OpenText(fileName))
         await using (var cryptoStream = new CryptoStream(file.BaseStream, aes.CreateDecryptor(), CryptoStreamMode.Read))
         await using (var gzip = new GZipStream(cryptoStream, CompressionMode.Decompress))
         using (var gzipStream = new StreamReader(gzip))
         {
-            return await JsonSerializer.DeserializeAsync<T>(gzipStream.BaseStream);
+            return await JsonSerializer.DeserializeAsync<T>(gzipStream.BaseStream, jsonSerializerOptions);
         }
     }
 
